@@ -1,0 +1,2 @@
+Accuracy = 1.0000
+F1_macro = 1.0000
