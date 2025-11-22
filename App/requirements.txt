@@ -1,8 +1,6 @@
-gradio
 pandas
-numpy
 scikit-learn
+numpy
 matplotlib
 skops
-cml
 black
