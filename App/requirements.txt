@@ -4,3 +4,6 @@ numpy
 matplotlib
 skops
 black
+numpy
+pandas
+scikit-learn
