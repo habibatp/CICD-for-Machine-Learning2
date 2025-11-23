@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
-import skops.io as sio
+import joblib  # ✅ à la place de skops
 
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
@@ -20,8 +20,7 @@ from sklearn.preprocessing import OrdinalEncoder, StandardScaler
 # 0. Chemins / Préparation
 # ==========================
 
-# ⚠️ Ton fichier s'appelle drug200.csv
-DATA_PATH = os.path.join("Data", "drug200.csv")
+DATA_PATH = os.path.join("Data", "drug200.csv")  # ou drug.csv selon ton fichier
 MODEL_DIR = "Model"
 RESULTS_DIR = "Results"
 
@@ -31,6 +30,7 @@ os.makedirs(RESULTS_DIR, exist_ok=True)
 print("📂 Dossier courant :", os.getcwd())
 print("📂 Chemin attendu pour le CSV :", DATA_PATH)
 print("📂 Contenu du dossier Data :", os.listdir("Data"))
+
 print(f"📂 Chargement du dataset depuis : {DATA_PATH}")
 
 # ==========================
@@ -38,8 +38,6 @@ print(f"📂 Chargement du dataset depuis : {DATA_PATH}")
 # ==========================
 
 drug_df = pd.read_csv(DATA_PATH)
-
-# Mélange pour éviter un ordre biaisé (avec random_state pour la reproductibilité)
 drug_df = drug_df.sample(frac=1, random_state=42).reset_index(drop=True)
 
 print("🔍 Aperçu des 5 premières lignes :")
@@ -58,7 +56,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     y,
     test_size=0.3,
     random_state=125,
-    stratify=y,   # pour garder la même répartition des classes
+    stratify=y,
 )
 
 print("\n📊 Dimensions :")
@@ -71,7 +69,7 @@ print("y_test  :", y_test.shape)
 # 3. Construction du pipeline
 # ==========================
 
-# Indices des colonnes (dans l'ordre du CSV original)
+# Indices des colonnes :
 # 0 : Age (numérique)
 # 1 : Sex (catégorielle)
 # 2 : BP (catégorielle)
@@ -96,7 +94,7 @@ pipe = Pipeline(
     ]
 )
 
-print("\n=== Pipeline entraîné (structure) ===")
+print("\n=== Pipeline (structure) ===")
 print(pipe)
 
 # ==========================
@@ -148,10 +146,10 @@ with open(metrics_path, "w", encoding="utf-8") as outfile:
 print(f"📝 Métriques sauvegardées dans : {metrics_path}")
 
 # ==========================
-# 8. Sauvegarde du pipeline (skops)
+# 8. Sauvegarde du pipeline (joblib)
 # ==========================
 
-model_path = os.path.join(MODEL_DIR, "drug_pipeline.skops")
-sio.dump(pipe, model_path)
+model_path = os.path.join(MODEL_DIR, "drug_pipeline.joblib")
+joblib.dump(pipe, model_path)
 
 print(f"💾 Modèle sauvegardé dans : {model_path}")

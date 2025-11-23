@@ -1,9 +1,10 @@
-pandas
-scikit-learn
-numpy
-matplotlib
 skops
 black
 numpy
 pandas
 scikit-learn
+matplotlib
+joblib
+gradio
+black
+huggingface_hub
