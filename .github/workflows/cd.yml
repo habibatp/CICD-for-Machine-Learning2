@@ -1,51 +1,20 @@
 name: Continuous Deployment
 
 on:
-  push:
-    branches: [ "update" ]   # dès que la branche update est modifiée
+  workflow_run:
+    workflows: ["Continuous Integration"]
+    types:
+      - completed
+
   workflow_dispatch:
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install huggingface_hub
-        run: pip install huggingface_hub
-
-      - name: Deploy to Hugging Face Space
+      - name: Deployment To Hugging Face
         env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: |
-          python - << 'EOF'
-          import os
-          from huggingface_hub import upload_folder
-
-          token = os.environ["HF_TOKEN"]
-          # ⚠️ À adapter avec ton vrai space HF
-          repo_id = "TON_USERNAME/TON_SPACE"  # ex: "habibatp/drug-classification-ci-cd"
-
-          # On envoie l'app (Gradio) et le modèle
-          upload_folder(
-              repo_id=repo_id,
-              folder_path="App",
-              path_in_repo=".",
-              repo_type="space",
-              token=token,
-          )
-          upload_folder(
-              repo_id=repo_id,
-              folder_path="Model",
-              path_in_repo="Model",
-              repo_type="space",
-              token=token,
-          )
-          EOF
+          HF: ${{ secrets.HF }}
+        run: make deploy HF=$HF
