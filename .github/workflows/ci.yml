@@ -1,4 +1,5 @@
 name: Continuous Integration
+
 on:
   push:
     branches: [ "main" ]
@@ -11,9 +12,18 @@ permissions: write-all
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: iterative/setup-cml@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Setup CML
+        uses: iterative/setup-cml@v2
 
       - name: Install Packages
         run: make install
@@ -24,7 +34,13 @@ jobs:
       - name: Train
         run: make train
 
-      - name: Evaluation
+      - name: Evaluation (CML report)
         env:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: make eval
+
+      - name: Update Branch with new model/results
+        env:
+          NAME: ${{ secrets.USER_NAME }}
+          EMAIL: ${{ secrets.USER_EMAIL }}
+        run: make update-branch USER_NAME=$NAME USER_EMAIL=$EMAIL
